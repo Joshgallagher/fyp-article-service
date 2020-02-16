@@ -29,6 +29,6 @@ import { ArticleModule } from './article/article.module';
     ArticleModule,
   ],
   controllers: [],
-  providers: [ArticleModule],
+  providers: [],
 })
 export class AppModule { }
