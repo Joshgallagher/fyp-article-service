@@ -4,13 +4,13 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class ArticleService {
+export class ArticlesService {
     constructor(
         @InjectRepository(Article)
-        private readonly articleRepository: Repository<Article>,
+        private readonly articlesRepository: Repository<Article>,
     ) { }
 
     async findAll(): Promise<Article[]> {
-        return this.articleRepository.find();
+        return this.articlesRepository.find();
     }
 }

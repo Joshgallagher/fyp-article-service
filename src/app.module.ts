@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Article } from './article/article.entity';
-import { ArticleModule } from './article/article.module';
+import { ArticlesModule } from './article/articles.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { ArticleModule } from './article/article.module';
       }),
       inject: [ConfigService],
     }),
-    ArticleModule,
+    ArticlesModule,
   ],
   controllers: [],
   providers: [],
