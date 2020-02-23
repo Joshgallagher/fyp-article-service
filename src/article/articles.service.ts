@@ -13,4 +13,10 @@ export class ArticlesService {
     async findAll(): Promise<Article[]> {
         return this.articlesRepository.find();
     }
+
+    async findAllByUser(userId: string): Promise<Article[]> {
+        return this.articlesRepository.find({
+            where: { user_id: userId }
+        });
+    }
 }
