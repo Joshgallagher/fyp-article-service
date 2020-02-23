@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Article } from './article/article.entity';
 import { ArticlesModule } from './article/articles.module';
+import { ArticleSubscriber } from './article/article.subscriber';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ArticlesModule } from './article/articles.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [Article],
+        subscribers: [ArticleSubscriber],
         synchronize: true,
       }),
       inject: [ConfigService],
