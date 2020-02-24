@@ -4,6 +4,8 @@ import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserIdHeaderInterceptor } from 'src/common/interceptors/user-id-header.interceptor';
+import { ArticleGuard } from './guards/article.guard';
+import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Controller('articles')
 export class ArticlesController {
@@ -34,5 +36,11 @@ export class ArticlesController {
         @Param('userId', new ParseUUIDPipe()) userId: string
     ): Promise<Article[]> {
         return this.articlesService.findAllByUser(userId);
+    }
+
+    @Post(':slug')
+    @UseGuards(ArticleGuard)
+    update(@Param('slug') slug: string, @Body() updateArticleDto: UpdateArticleDto): Promise<Article> {
+        return this.articlesService.update(slug, updateArticleDto);
     }
 }

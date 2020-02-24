@@ -3,6 +3,7 @@ import { Article } from './article.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -20,6 +21,24 @@ export class ArticlesService {
         article.body = body;
 
         return await this.articlesRepository.save(article);
+    }
+
+    async update(
+        slug: string,
+        updateArticleDto: UpdateArticleDto
+    ): Promise<Article> {
+        const { title, body } = updateArticleDto;
+
+        let article = await this.articlesRepository.findOne({
+            where: { slug }
+        });
+
+        article.title = title;
+        article.body = body;
+
+        const updatedArticle = await this.articlesRepository.save(article);
+
+        return updatedArticle;
     }
 
     async findAll(): Promise<Article[]> {
