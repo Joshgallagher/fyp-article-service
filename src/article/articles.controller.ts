@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post, Body, UseGuards, UseInterceptors, Headers } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Body, UseGuards, UseInterceptors, Headers, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -38,9 +38,19 @@ export class ArticlesController {
         return this.articlesService.findAllByUser(userId);
     }
 
-    @Post(':slug')
+    @Put(':slug')
     @UseGuards(ArticleGuard)
-    update(@Param('slug') slug: string, @Body() updateArticleDto: UpdateArticleDto): Promise<Article> {
+    update(
+        @Param('slug') slug: string,
+        @Body() updateArticleDto: UpdateArticleDto
+    ): Promise<Article> {
         return this.articlesService.update(slug, updateArticleDto);
+    }
+
+    @Delete(':slug')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @UseGuards(ArticleGuard)
+    delete(@Param('slug') slug: string): Promise<void> {
+        return this.articlesService.delete(slug);
     }
 }

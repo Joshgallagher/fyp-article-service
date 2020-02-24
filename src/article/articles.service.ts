@@ -23,24 +23,6 @@ export class ArticlesService {
         return await this.articlesRepository.save(article);
     }
 
-    async update(
-        slug: string,
-        updateArticleDto: UpdateArticleDto
-    ): Promise<Article> {
-        const { title, body } = updateArticleDto;
-
-        let article = await this.articlesRepository.findOne({
-            where: { slug }
-        });
-
-        article.title = title;
-        article.body = body;
-
-        const updatedArticle = await this.articlesRepository.save(article);
-
-        return updatedArticle;
-    }
-
     async findAll(): Promise<Article[]> {
         return this.articlesRepository.find();
     }
@@ -59,5 +41,31 @@ export class ArticlesService {
         return this.articlesRepository.find({
             where: { user_id: userId }
         });
+    }
+
+    async update(
+        slug: string,
+        updateArticleDto: UpdateArticleDto
+    ): Promise<Article> {
+        const { title, body } = updateArticleDto;
+
+        let article = await this.articlesRepository.findOne({
+            where: { slug }
+        });
+
+        article.title = title;
+        article.body = body;
+
+        const updatedArticle = await this.articlesRepository.save(article);
+
+        return updatedArticle;
+    }
+
+    async delete(slug: string): Promise<void> {
+        let article = await this.articlesRepository.findOne({
+            where: { slug }
+        });
+
+        await this.articlesRepository.delete(article.id);
     }
 }
