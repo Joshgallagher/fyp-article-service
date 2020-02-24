@@ -2,9 +2,9 @@ import { Module, HttpModule, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Article } from './article/article.entity';
-import { ArticlesModule } from './article/articles.module';
-import { ArticleSubscriber } from './article/article.subscriber';
+import { Article } from './articles/article.entity';
+import { ArticlesModule } from './articles/articles.module';
+import { ArticleSubscriber } from './articles/article.subscriber';
 
 @Global()
 @Module({

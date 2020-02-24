@@ -1,7 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, UnauthorizedException } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { JWKS, JWT, errors } from 'jose';
-import { tap } from 'rxjs/operators';
+import { JWT } from 'jose';
 
 @Injectable()
 export class UserIdHeaderInterceptor implements NestInterceptor {

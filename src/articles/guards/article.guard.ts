@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { getRepository } from 'typeorm';
-import { JWKS, JWT, errors } from 'jose';
+import { JWT } from 'jose';
 import { Article } from '../article.entity';
 
 @Injectable()

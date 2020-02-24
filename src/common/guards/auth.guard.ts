@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext, HttpService, UnauthorizedException, Inject, InternalServerErrorException } from '@nestjs/common';
-import { JWKS, JWT, errors } from 'jose';
+import { JWKS, JWT } from 'jose';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
     ): Promise<boolean> {
         const request: any = context.switchToHttp().getRequest();
         const token: string = (request.get('Authorization') as string).split(' ')[1].trim();
-
+        console.log(request.headers);
         let jwks: any;
 
         try {
