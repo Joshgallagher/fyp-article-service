@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, HttpModule, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { Article } from './article/article.entity';
 import { ArticlesModule } from './article/articles.module';
 import { ArticleSubscriber } from './article/article.subscriber';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({

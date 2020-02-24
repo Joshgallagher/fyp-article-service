@@ -16,7 +16,7 @@ export class ArticleSubscriber implements EntitySubscriberInterface<Article> {
      */
     beforeInsert({ entity }: InsertEvent<Article>) {
         entity.slug = slugify(entity.title, {
-            replacement: '_',
+            replacement: '-',
             remove: null,
             lower: true
         });

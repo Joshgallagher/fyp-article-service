@@ -1,15 +1,22 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Body, UseGuards, UseInterceptors, Headers } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UserIdHeaderInterceptor } from 'src/common/interceptors/user-id-header.interceptor';
 
 @Controller('articles')
 export class ArticlesController {
     constructor(private readonly articlesService: ArticlesService) { }
 
     @Post()
-    create(@Body() createArticleDto: CreateArticleDto): Promise<Article> {
-        return this.articlesService.create(createArticleDto);
+    @UseGuards(AuthGuard)
+    @UseInterceptors(UserIdHeaderInterceptor)
+    create(
+        @Headers('x-user-id') userId: string,
+        @Body() createArticleDto: CreateArticleDto
+    ): Promise<Article> {
+        return this.articlesService.create(userId, createArticleDto);
     }
 
     @Get()

@@ -11,11 +11,11 @@ export class ArticlesService {
         private readonly articlesRepository: Repository<Article>,
     ) { }
 
-    async create(createArticleDto: CreateArticleDto): Promise<Article> {
-        const { user_id, title, body } = createArticleDto;
+    async create(userId: string, createArticleDto: CreateArticleDto): Promise<Article> {
+        const { title, body } = createArticleDto;
 
         let article = new Article();
-        article.user_id = user_id;
+        article.user_id = userId;
         article.title = title;
         article.body = body;
 
