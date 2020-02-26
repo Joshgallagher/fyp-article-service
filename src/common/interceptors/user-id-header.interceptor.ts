@@ -11,7 +11,7 @@ export class UserIdHeaderInterceptor implements NestInterceptor {
         let subject: string;
 
         try {
-            const { sub } = JWT.decode(token) as any;
+            const { sub } = JWT.decode(token) as Record<any, any>;
 
             subject = sub;
         } catch (e) {

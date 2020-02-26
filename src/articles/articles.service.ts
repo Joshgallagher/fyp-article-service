@@ -12,7 +12,9 @@ export class ArticlesService {
         private readonly articlesRepository: Repository<Article>,
     ) { }
 
-    async create(userId: string, createArticleDto: CreateArticleDto): Promise<Article> {
+    async create(
+        userId: string, createArticleDto: CreateArticleDto
+    ): Promise<Article> {
         const { title, body } = createArticleDto;
 
         let article = new Article();
@@ -20,11 +22,16 @@ export class ArticlesService {
         article.title = title;
         article.body = body;
 
-        return await this.articlesRepository.save(article);
+        let savedArticle = await this.articlesRepository.save(article);
+        savedArticle.slug = `${savedArticle.slug}-${savedArticle.id}`;
+
+        return savedArticle;
     }
 
     async findAll(): Promise<Article[]> {
-        return this.articlesRepository.find();
+        return this.articlesRepository.find({
+            order: { id: 'DESC' }
+        });
     }
 
     async findOne(slug: string): Promise<Article> {
@@ -39,7 +46,8 @@ export class ArticlesService {
 
     async findAllByUser(userId: string): Promise<Article[]> {
         return this.articlesRepository.find({
-            where: { user_id: userId }
+            where: { user_id: userId },
+            order: { id: 'DESC' }
         });
     }
 
@@ -49,9 +57,7 @@ export class ArticlesService {
     ): Promise<Article> {
         const { title, body } = updateArticleDto;
 
-        let article = await this.articlesRepository.findOne({
-            where: { slug }
-        });
+        let article = await this.articlesRepository.findOne({ where: { slug } });
 
         article.title = title;
         article.body = body;
@@ -62,7 +68,7 @@ export class ArticlesService {
     }
 
     async delete(slug: string): Promise<void> {
-        let article = await this.articlesRepository.findOne({
+        const article = await this.articlesRepository.findOne({
             where: { slug }
         });
 

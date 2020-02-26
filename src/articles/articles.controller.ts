@@ -6,6 +6,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserIdHeaderInterceptor } from 'src/common/interceptors/user-id-header.interceptor';
 import { ArticleGuard } from './guards/article.guard';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ValidationPipe } from 'src/common/pipes/validation.pipe';
 
 @Controller('articles')
 export class ArticlesController {
@@ -16,7 +17,7 @@ export class ArticlesController {
     @UseInterceptors(UserIdHeaderInterceptor)
     create(
         @Headers('x-user-id') userId: string,
-        @Body() createArticleDto: CreateArticleDto
+        @Body(new ValidationPipe()) createArticleDto: CreateArticleDto
     ): Promise<Article> {
         return this.articlesService.create(userId, createArticleDto);
     }
@@ -26,23 +27,23 @@ export class ArticlesController {
         return this.articlesService.findAll();
     }
 
-    @Get(':slug')
-    findOne(@Param('slug') slug: string): Promise<Article> {
-        return this.articlesService.findOne(slug);
-    }
-
-    @Get(':userId')
+    @Get('user/:userId')
     findAllByUser(
         @Param('userId', new ParseUUIDPipe()) userId: string
     ): Promise<Article[]> {
         return this.articlesService.findAllByUser(userId);
     }
 
+    @Get(':slug')
+    findOne(@Param('slug') slug: string): Promise<Article> {
+        return this.articlesService.findOne(slug);
+    }
+
     @Put(':slug')
     @UseGuards(ArticleGuard)
     update(
         @Param('slug') slug: string,
-        @Body() updateArticleDto: UpdateArticleDto
+        @Body(new ValidationPipe()) updateArticleDto: UpdateArticleDto
     ): Promise<Article> {
         return this.articlesService.update(slug, updateArticleDto);
     }
