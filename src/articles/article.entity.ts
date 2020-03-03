@@ -4,11 +4,10 @@ import { Exclude, classToPlain } from 'class-transformer';
 @Entity()
 export class Article {
     @PrimaryGeneratedColumn()
-    @Exclude({ toPlainOnly: true })
     id: number;
 
     @Column()
-    user_id: string;
+    userId: string;
 
     @Column()
     slug: string;
@@ -20,12 +19,8 @@ export class Article {
     body: string;
 
     @CreateDateColumn()
-    created_at: string;
+    createdAt: string;
 
     @UpdateDateColumn()
-    updated_at: string;
-
-    toJSON() {
-        return classToPlain(this);
-    }
+    updatedAt: string;
 }

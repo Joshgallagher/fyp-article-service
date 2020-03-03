@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -12,13 +13,11 @@ export class ArticlesService {
         private readonly articlesRepository: Repository<Article>,
     ) { }
 
-    async create(
-        userId: string, createArticleDto: CreateArticleDto
-    ): Promise<Article> {
+    async create(userId: string, createArticleDto: CreateArticleDto): Promise<Article> {
         const { title, body } = createArticleDto;
 
         let article = new Article();
-        article.user_id = userId;
+        article.userId = userId;
         article.title = title;
         article.body = body;
 
@@ -28,33 +27,36 @@ export class ArticlesService {
         return savedArticle;
     }
 
-    async findAll(): Promise<Article[]> {
-        return this.articlesRepository.find({
-            order: { id: 'DESC' }
-        });
-    }
-
     async findOne(slug: string): Promise<Article> {
         try {
             return await this.articlesRepository.findOneOrFail({
                 where: { slug }
             });
         } catch (e) {
-            throw new NotFoundException("Article not found.");
+            throw new NotFoundException('Article not found');
         }
     }
 
-    async findAllByUser(userId: string): Promise<Article[]> {
-        return this.articlesRepository.find({
-            where: { user_id: userId },
+    async findAll(): Promise<Article[]> {
+        return await this.articlesRepository.find({
             order: { id: 'DESC' }
         });
     }
 
-    async update(
-        slug: string,
-        updateArticleDto: UpdateArticleDto
-    ): Promise<Article> {
+    async findByIds(findArticlesByIdsDto: FindArticlesByIdsDto): Promise<Article[]> {
+        const { articleIds } = findArticlesByIdsDto;
+
+        return await this.articlesRepository.findByIds(articleIds);
+    }
+
+    async findAllByUser(userId: string): Promise<Article[]> {
+        return await this.articlesRepository.find({
+            where: { userId },
+            order: { id: 'DESC' }
+        });
+    }
+
+    async update(slug: string, updateArticleDto: UpdateArticleDto): Promise<Article> {
         const { title, body } = updateArticleDto;
 
         let article = await this.articlesRepository.findOne({ where: { slug } });
@@ -68,10 +70,10 @@ export class ArticlesService {
     }
 
     async delete(slug: string): Promise<void> {
-        const article = await this.articlesRepository.findOne({
+        const { id } = await this.articlesRepository.findOne({
             where: { slug }
         });
 
-        await this.articlesRepository.delete(article.id);
+        await this.articlesRepository.delete(id);
     }
 }

@@ -12,7 +12,7 @@ export class ArticleGuard implements CanActivate {
         const token: string = (request.get('Authorization') as string).split(' ')[1].trim();
         const slug: string = request.params.slug;
 
-        let userId: string;
+        let id: string;
         let subject: string;
 
         try {
@@ -24,16 +24,16 @@ export class ArticleGuard implements CanActivate {
         }
 
         try {
-            const { user_id } = await getRepository(Article).findOneOrFail({
+            const { userId } = await getRepository(Article).findOneOrFail({
                 where: { slug }
             });
 
-            userId = user_id;
+            id = userId;
         } catch (e) {
-            throw new NotFoundException('Article not found.');
+            throw new NotFoundException('Article not found');
         }
 
-        if (userId !== subject) {
+        if (id !== subject) {
             throw new UnauthorizedException();
         }
 

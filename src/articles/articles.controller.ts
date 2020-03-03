@@ -7,6 +7,7 @@ import { UserIdHeaderInterceptor } from 'src/common/interceptors/user-id-header.
 import { ArticleGuard } from './guards/article.guard';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ValidationPipe } from 'src/common/pipes/validation.pipe';
+import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 
 @Controller('articles')
 export class ArticlesController {
@@ -22,9 +23,19 @@ export class ArticlesController {
         return this.articlesService.create(userId, createArticleDto);
     }
 
+    @Get(':slug')
+    findOne(@Param('slug') slug: string): Promise<Article> {
+        return this.articlesService.findOne(slug);
+    }
+
     @Get()
     findAll(): Promise<Article[]> {
         return this.articlesService.findAll();
+    }
+
+    @Post('all')
+    findByIds(@Body() findArticlesByIdsDto: FindArticlesByIdsDto): Promise<Article[]> {
+        return this.articlesService.findByIds(findArticlesByIdsDto);
     }
 
     @Get('user/:userId')
@@ -32,11 +43,6 @@ export class ArticlesController {
         @Param('userId', new ParseUUIDPipe()) userId: string
     ): Promise<Article[]> {
         return this.articlesService.findAllByUser(userId);
-    }
-
-    @Get(':slug')
-    findOne(@Param('slug') slug: string): Promise<Article> {
-        return this.articlesService.findOne(slug);
     }
 
     @Put(':slug')

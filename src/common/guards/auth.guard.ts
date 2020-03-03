@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
     ): Promise<boolean> {
         const request: any = context.switchToHttp().getRequest();
         const token: string = (request.get('Authorization') as string).split(' ')[1].trim();
-        console.log(request.headers);
+
         let jwks: any;
 
         try {
