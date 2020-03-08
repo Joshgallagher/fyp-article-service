@@ -2,11 +2,11 @@ import { Controller, Get, Param, ParseUUIDPipe, Post, Body, UseGuards, UseInterc
 import { ArticlesService } from './articles.service';
 import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { UserIdHeaderInterceptor } from 'src/common/interceptors/user-id-header.interceptor';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { UserIdHeaderInterceptor } from '../common/interceptors/user-id-header.interceptor';
 import { ArticleGuard } from './guards/article.guard';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ValidationPipe } from 'src/common/pipes/validation.pipe';
+import { ValidationPipe } from '../common/pipes/validation.pipe';
 import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 
 @Controller('articles')
