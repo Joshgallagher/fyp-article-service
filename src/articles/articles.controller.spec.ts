@@ -4,23 +4,19 @@ import { ArticlesService } from './articles.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
-import { HttpService, NotFoundException } from '@nestjs/common';
+import { HttpService, NotFoundException, HttpStatus } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 
-const mockId: number = 1;
 const mockUserId: string = 'a uuid';
 const mockTitle: string = 'Test Title';
 const mockSlug: string = 'test-title';
 const mockBody: string = 'Lorem ipsum dolor sit amet';
-const mockCreatedAt: string = 'created at';
-const mockUpdatedAt: string = 'updated at';
 
 describe('Articles Controller', () => {
   let controller: ArticlesController;
   let service: ArticlesService;
-  let repository: Repository<Article>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -70,7 +66,7 @@ describe('Articles Controller', () => {
                 Promise.resolve({ slug, ...article }),
               ),
             delete: jest.fn()
-              .mockImplementation((slug: string) => Promise.resolve(undefined))
+              .mockImplementation((_slug: string) => Promise.resolve(undefined))
           }
         },
         {
@@ -91,7 +87,6 @@ describe('Articles Controller', () => {
 
     controller = module.get<ArticlesController>(ArticlesController);
     service = module.get<ArticlesService>(ArticlesService);
-    repository = module.get<Repository<Article>>(getRepositoryToken(Article));
   });
 
   describe('Create article', () => {
@@ -118,12 +113,6 @@ describe('Articles Controller', () => {
     });
 
     it('Not found error will be thrown when an article can not be found', () => {
-      const expectedResult: Partial<Article> = {
-        title: mockTitle,
-        slug: mockSlug,
-        body: mockBody
-      };
-
       const serviceSpy = jest.spyOn(service, 'findOne')
         .mockRejectedValue(new NotFoundException('Article not found'));
 
@@ -135,7 +124,7 @@ describe('Articles Controller', () => {
           message: {
             error: 'Not Found',
             message: 'Article not found',
-            statusCode: 404,
+            statusCode: HttpStatus.NOT_FOUND,
           }
         });
       expect(controllerCall).rejects.toBeInstanceOf(NotFoundException);
