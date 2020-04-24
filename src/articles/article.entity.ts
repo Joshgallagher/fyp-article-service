@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Exclude, classToPlain } from 'class-transformer';
 
 @Entity()
 export class Article {
@@ -6,9 +7,9 @@ export class Article {
     id: number;
 
     @Column()
-    user_id: string;
+    userId: string;
 
-    @Column({ unique: true })
+    @Column()
     slug: string;
 
     @Column()
@@ -18,8 +19,8 @@ export class Article {
     body: string;
 
     @CreateDateColumn()
-    created_at: string;
+    createdAt: string;
 
     @UpdateDateColumn()
-    updated_at: string;
+    updatedAt: string;
 }

@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, HttpModule, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Article } from './article/article.entity';
-import { ArticlesModule } from './article/articles.module';
+import { Article } from './articles/article.entity';
+import { ArticlesModule } from './articles/articles.module';
+import { ArticleSubscriber } from './articles/article.subscriber';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,6 +24,7 @@ import { ArticlesModule } from './article/articles.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [Article],
+        subscribers: [ArticleSubscriber],
         synchronize: true,
       }),
       inject: [ConfigService],
