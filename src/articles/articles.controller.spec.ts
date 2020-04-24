@@ -89,8 +89,8 @@ describe('Articles Controller', () => {
     service = module.get<ArticlesService>(ArticlesService);
   });
 
-  describe('Create article', () => {
-    it('User successfully created an article', () => {
+  describe('create', () => {
+    it('Create an article', () => {
       const articleDto: CreateArticleDto = { title: mockTitle, body: mockBody };
 
       expect(controller.create(mockUserId, articleDto))
@@ -99,8 +99,8 @@ describe('Articles Controller', () => {
     });
   });
 
-  describe('Find one article', () => {
-    it('A user can find one article by its slug', () => {
+  describe('findOne', () => {
+    it('Find an article by its slug', () => {
       const expectedResult: Partial<Article> = {
         title: mockTitle,
         slug: mockSlug,
@@ -112,7 +112,7 @@ describe('Articles Controller', () => {
         .toEqual(expectedResult);
     });
 
-    it('Not found error will be thrown when an article can not be found', () => {
+    it('Not found error when an article can not be found', () => {
       const serviceSpy = jest.spyOn(service, 'findOne')
         .mockRejectedValue(new NotFoundException('Article not found'));
 
@@ -133,8 +133,13 @@ describe('Articles Controller', () => {
     });
   });
 
-  describe('Find articles by their ids', () => {
-    it('A user can find articles by their ids', () => {
+  describe('findAll', () => {
+    it('Find all articles', async () => {
+    });
+  });
+
+  describe('findByIds', () => {
+    it('Find articles by their IDs', () => {
       const { articleIds }: FindArticlesByIdsDto = { articleIds: [4, 8] };
 
       expect(controller.findByIds({ articleIds }))
@@ -146,8 +151,8 @@ describe('Articles Controller', () => {
     });
   });
 
-  describe('Find articles by their author', () => {
-    it('A user can find articles by their author', () => {
+  describe('findAllByUser', () => {
+    it('Find all articles by an author', () => {
       expect(controller.findAllByUser(mockUserId))
         .resolves
         .toEqual([
@@ -157,8 +162,8 @@ describe('Articles Controller', () => {
     });
   });
 
-  describe('Update article', () => {
-    it('A user can update their article', () => {
+  describe('update', () => {
+    it('Update an article', () => {
       const articleDto: UpdateArticleDto = { title: mockTitle, body: mockBody };
 
       expect(controller.update(mockSlug, articleDto))
@@ -167,8 +172,8 @@ describe('Articles Controller', () => {
     });
   });
 
-  describe('Delete article', () => {
-    it('A user can delete their article', () => {
+  describe('delete', () => {
+    it('Delete an article', () => {
       expect(controller.delete(mockSlug))
         .resolves
         .toEqual(undefined);

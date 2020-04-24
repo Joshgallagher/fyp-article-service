@@ -3,11 +3,20 @@ import { ArticlesService } from './articles.service';
 import { Article } from './article.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { CreateArticleDto } from './dto/create-article.dto';
+import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
+import { UpdateArticleDto } from './dto/update-article.dto';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
+
+const mockId: number = 1;
+const mockUserId: string = 'a uuid';
+const mockTitle: string = 'Test Title';
+const mockSlug: string = 'test-title';
+const mockBody: string = 'Lorem ipsum dolor sit amet';
 
 describe('ArticleService', () => {
   let service: ArticlesService;
   let repository: Repository<Article>;
-
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -15,7 +24,15 @@ describe('ArticleService', () => {
         ArticlesService,
         {
           provide: getRepositoryToken(Article),
-          useClass: Repository,
+          useValue: {
+            create: jest.fn(() => true),
+            find: jest.fn(() => true),
+            findOne: jest.fn(() => true),
+            findOneOrFail: jest.fn(() => true),
+            findByIds: jest.fn(() => true),
+            save: jest.fn(() => true),
+            delete: jest.fn(() => true),
+          }
         }
       ],
     }).compile();
@@ -24,7 +41,111 @@ describe('ArticleService', () => {
     repository = module.get<Repository<Article>>(getRepositoryToken(Article));
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('create', () => {
+    it('Create an article', async () => {
+      const articleDto: CreateArticleDto = { title: mockTitle, body: mockBody };
+
+      repository.save = jest.fn()
+        .mockReturnValue(() => ({ id: mockId, slug: mockSlug }));
+      await service.create(mockUserId, articleDto);
+
+      expect(repository.save)
+        .toHaveBeenCalledWith(Object.assign(new Article, {
+          userId: mockUserId,
+          ...articleDto
+        }));
+    });
+  });
+
+  describe('findOne', () => {
+    it('Find an article by its slug', async () => {
+      repository.findOneOrFail = jest.fn();
+      await service.findOne(mockSlug);
+
+      expect(repository.findOneOrFail)
+        .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+    });
+
+    it('Not found error when an article can not be found', () => {
+      repository.findOneOrFail = jest.fn()
+        .mockRejectedValue(new Error());
+      const error = service.findOne(mockSlug);
+
+      expect(repository.findOneOrFail)
+        .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+      expect(error).rejects.toBeInstanceOf(NotFoundException);
+      expect(error).rejects.toMatchObject({
+        message: {
+          error: 'Not Found',
+          message: 'Article not found',
+          statusCode: HttpStatus.NOT_FOUND,
+        }
+      });
+    });
+
+    describe('findAll', () => {
+      it('Find all articles', async () => {
+        repository.find = jest.fn();
+        await service.findAll();
+
+        expect(repository.find)
+          .toHaveBeenCalledWith({ order: { id: 'DESC' } });
+      });
+    });
+
+    describe('findByIds', () => {
+      it('Find articles by their IDs', async () => {
+        const ids: FindArticlesByIdsDto = { articleIds: [1, 2, 3] };
+
+        repository.findByIds = jest.fn();
+        await service.findByIds(ids);
+
+        expect(repository.findByIds)
+          .toHaveBeenCalledWith(ids.articleIds);
+      });
+    });
+
+    describe('findAllByUser', () => {
+      it('Find all articles by an author', async () => {
+        repository.find = jest.fn();
+        await service.findAllByUser(mockUserId);
+
+        expect(repository.find)
+          .toHaveBeenCalledWith({
+            where: { userId: mockUserId },
+            order: { id: 'DESC' }
+          });
+      });
+    });
+
+    describe('update', () => {
+      it('Update an article', async () => {
+        const article: UpdateArticleDto = { title: mockTitle, body: mockBody };
+
+        repository.findOne = jest.fn()
+          .mockReturnValue(article);
+        repository.save = jest.fn();
+        await service.update(mockSlug, article);
+
+        expect(repository.findOne)
+          .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+        expect(repository.save)
+          .toHaveBeenCalledWith(Object.assign(new Article, { ...article }));
+      });
+    });
+
+    describe('delete', () => {
+      it('Delete an article', async () => {
+        repository.findOne = jest.fn()
+          .mockReturnValue({ id: mockId });
+        repository.delete = jest.fn();
+        await service.delete(mockSlug);
+
+        expect(repository.findOne)
+          .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+        expect(repository.delete)
+          .toHaveBeenCalledWith(mockId);
+      });
+    });
   });
 });
