@@ -1,16 +1,21 @@
-import { Injectable, NotFoundException, Body } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Article } from './article.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ArticlesService {
     constructor(
+        @Inject('ConfigService')
+        private readonly configService: ConfigService,
         @InjectRepository(Article)
         private readonly articlesRepository: Repository<Article>,
+        private readonly queue: AmqpConnection
     ) { }
 
     async create(userId: string, createArticleDto: CreateArticleDto): Promise<Article> {
@@ -74,6 +79,14 @@ export class ArticlesService {
             where: { slug }
         });
 
-        await this.articlesRepository.delete(id);
+        const { affected } = await this.articlesRepository.delete(id);
+
+        if (affected !== null) {
+            await this.queue.publish(
+                this.configService.get<string>('AMQP_EXCHANGE'),
+                'article.deleted',
+                { id }
+            );
+        }
     }
 }

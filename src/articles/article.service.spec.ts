@@ -7,6 +7,9 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { DiscoveryService } from '@nestjs/core';
+import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 const mockId: number = 1;
 const mockUserId: string = 'a uuid';
@@ -17,10 +20,14 @@ const mockBody: string = 'Lorem ipsum dolor sit amet';
 describe('ArticleService', () => {
   let service: ArticlesService;
   let repository: Repository<Article>;
+  let queue: AmqpConnection;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        ConfigService,
+        DiscoveryService,
+        RabbitMQModule,
         ArticlesService,
         {
           provide: getRepositoryToken(Article),
@@ -33,12 +40,19 @@ describe('ArticleService', () => {
             save: jest.fn(() => true),
             delete: jest.fn(() => true),
           }
+        },
+        {
+          provide: AmqpConnection,
+          useValue: {
+            publish: jest.fn()
+          }
         }
       ],
     }).compile();
 
     service = module.get<ArticlesService>(ArticlesService);
     repository = module.get<Repository<Article>>(getRepositoryToken(Article));
+    queue = module.get<AmqpConnection>(AmqpConnection);
   });
 
   describe('create', () => {
@@ -137,15 +151,31 @@ describe('ArticleService', () => {
     describe('delete', () => {
       it('Delete an article', async () => {
         repository.findOne = jest.fn()
-          .mockReturnValue({ id: mockId });
-        repository.delete = jest.fn();
+          .mockResolvedValue({ id: mockId });
+        repository.delete = jest.fn()
+          .mockResolvedValue({ affected: 1 });
         await service.delete(mockSlug);
 
         expect(repository.findOne)
           .toHaveBeenCalledWith({ where: { slug: mockSlug } });
         expect(repository.delete)
           .toHaveBeenCalledWith(mockId);
+        expect(queue.publish).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it('No articles to delete', async () => {
+      repository.findOne = jest.fn()
+        .mockResolvedValue({ id: mockId });
+      repository.delete = jest.fn()
+        .mockResolvedValue({ affected: null });
+      await service.delete(mockSlug);
+
+      expect(repository.findOne)
+        .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+      expect(repository.delete)
+        .toHaveBeenCalledWith(mockId);
+      expect(queue.publish).toHaveBeenCalledTimes(0);
     });
   });
 });

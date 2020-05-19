@@ -1,5 +1,4 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Exclude, classToPlain } from 'class-transformer';
 
 @Entity()
 export class Article {

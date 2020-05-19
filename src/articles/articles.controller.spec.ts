@@ -8,6 +8,7 @@ import { HttpService, NotFoundException, HttpStatus } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { FindArticlesByIdsDto } from './dto/find-articles-by-ids.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ConfigService } from '@nestjs/config';
 
 const mockUserId: string = 'a uuid';
 const mockTitle: string = 'Test Title';
