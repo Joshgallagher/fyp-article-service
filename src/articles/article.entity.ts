@@ -15,6 +15,9 @@ export class Article {
     title: string;
 
     @Column()
+    subtitle: string;
+
+    @Column()
     body: string;
 
     @CreateDateColumn()

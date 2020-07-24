@@ -14,6 +14,7 @@ import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 const mockId: number = 1;
 const mockUserId: string = 'a uuid';
 const mockTitle: string = 'Test Title';
+const mockSubtitle: string = 'Test Subtitle';
 const mockSlug: string = 'test-title';
 const mockBody: string = 'Lorem ipsum dolor sit amet';
 
@@ -57,7 +58,11 @@ describe('ArticleService', () => {
 
   describe('create', () => {
     it('Create an article', async () => {
-      const articleDto: CreateArticleDto = { title: mockTitle, body: mockBody };
+      const articleDto: CreateArticleDto = {
+        title: mockTitle,
+        subtitle: mockSubtitle,
+        body: mockBody
+      };
 
       repository.save = jest.fn()
         .mockReturnValue(() => ({ id: mockId, slug: mockSlug }));
@@ -96,86 +101,90 @@ describe('ArticleService', () => {
         }
       });
     });
+  });
 
-    describe('findAll', () => {
-      it('Find all articles', async () => {
-        repository.find = jest.fn();
-        await service.findAll();
+  describe('findAll', () => {
+    it('Find all articles', async () => {
+      repository.find = jest.fn();
+      await service.findAll();
 
-        expect(repository.find)
-          .toHaveBeenCalledWith({ order: { id: 'DESC' } });
-      });
+      expect(repository.find)
+        .toHaveBeenCalledWith({ order: { id: 'DESC' } });
     });
+  });
 
-    describe('findByIds', () => {
-      it('Find articles by their IDs', async () => {
-        const ids: FindArticlesByIdsDto = { articleIds: [1, 2, 3] };
+  describe('findByIds', () => {
+    it('Find articles by their IDs', async () => {
+      const ids: FindArticlesByIdsDto = { articleIds: [1, 2, 3] };
 
-        repository.findByIds = jest.fn();
-        await service.findByIds(ids);
+      repository.findByIds = jest.fn();
+      await service.findByIds(ids);
 
-        expect(repository.findByIds)
-          .toHaveBeenCalledWith(ids.articleIds);
-      });
+      expect(repository.findByIds)
+        .toHaveBeenCalledWith(ids.articleIds);
     });
+  });
 
-    describe('findAllByUser', () => {
-      it('Find all articles by an author', async () => {
-        repository.find = jest.fn();
-        await service.findAllByUser(mockUserId);
+  describe('findAllByUser', () => {
+    it('Find all articles by an author', async () => {
+      repository.find = jest.fn();
+      await service.findAllByUser(mockUserId);
 
-        expect(repository.find)
-          .toHaveBeenCalledWith({
-            where: { userId: mockUserId },
-            order: { id: 'DESC' }
-          });
-      });
+      expect(repository.find)
+        .toHaveBeenCalledWith({
+          where: { userId: mockUserId },
+          order: { id: 'DESC' }
+        });
     });
+  });
 
-    describe('update', () => {
-      it('Update an article', async () => {
-        const article: UpdateArticleDto = { title: mockTitle, body: mockBody };
+  describe('update', () => {
+    it('Update an article', async () => {
+      const article: UpdateArticleDto = {
+        title: mockTitle,
+        subtitle: mockSubtitle,
+        body: mockBody
+      };
 
-        repository.findOne = jest.fn()
-          .mockReturnValue(article);
-        repository.save = jest.fn();
-        await service.update(mockSlug, article);
+      repository.findOne = jest.fn()
+        .mockReturnValue(article);
+      repository.save = jest.fn();
+      await service.update(mockSlug, article);
 
-        expect(repository.findOne)
-          .toHaveBeenCalledWith({ where: { slug: mockSlug } });
-        expect(repository.save)
-          .toHaveBeenCalledWith(Object.assign(new Article, { ...article }));
-      });
+      expect(repository.findOne)
+        .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+      expect(repository.save)
+        .toHaveBeenCalledWith(Object.assign(new Article, { ...article }));
     });
+  });
 
-    describe('delete', () => {
-      it('Delete an article', async () => {
-        repository.findOne = jest.fn()
-          .mockResolvedValue({ id: mockId });
-        repository.delete = jest.fn()
-          .mockResolvedValue({ affected: 1 });
-        await service.delete(mockSlug);
-
-        expect(repository.findOne)
-          .toHaveBeenCalledWith({ where: { slug: mockSlug } });
-        expect(repository.delete)
-          .toHaveBeenCalledWith(mockId);
-        expect(queue.publish).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    it('No articles to delete', async () => {
+  describe('delete', () => {
+    it('Delete an article', async () => {
       repository.findOne = jest.fn()
         .mockResolvedValue({ id: mockId });
       repository.delete = jest.fn()
-        .mockResolvedValue({ affected: null });
+        .mockResolvedValue({ affected: 1 });
       await service.delete(mockSlug);
 
       expect(repository.findOne)
         .toHaveBeenCalledWith({ where: { slug: mockSlug } });
       expect(repository.delete)
         .toHaveBeenCalledWith(mockId);
-      expect(queue.publish).toHaveBeenCalledTimes(0);
+      expect(queue.publish).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('No articles to delete', async () => {
+    repository.findOne = jest.fn()
+      .mockResolvedValue({ id: mockId });
+    repository.delete = jest.fn()
+      .mockResolvedValue({ affected: null });
+    await service.delete(mockSlug);
+
+    expect(repository.findOne)
+      .toHaveBeenCalledWith({ where: { slug: mockSlug } });
+    expect(repository.delete)
+      .toHaveBeenCalledWith(mockId);
+    expect(queue.publish).toHaveBeenCalledTimes(0);
   });
 });

@@ -7,5 +7,9 @@ export class UpdateArticleDto {
 
     @IsNotEmpty()
     @IsString()
+    readonly subtitle: string;
+
+    @IsNotEmpty()
+    @IsString()
     readonly body: string;
 }
