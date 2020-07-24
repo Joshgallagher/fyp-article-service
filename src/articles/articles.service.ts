@@ -19,11 +19,12 @@ export class ArticlesService {
     ) { }
 
     async create(userId: string, createArticleDto: CreateArticleDto): Promise<Article> {
-        const { title, body } = createArticleDto;
+        const { title, subtitle, body } = createArticleDto;
 
         let article = new Article();
         article.userId = userId;
         article.title = title;
+        article.subtitle = subtitle;
         article.body = body;
 
         let savedArticle = await this.articlesRepository.save(article);
@@ -62,11 +63,12 @@ export class ArticlesService {
     }
 
     async update(slug: string, updateArticleDto: UpdateArticleDto): Promise<Article> {
-        const { title, body } = updateArticleDto;
+        const { title, subtitle, body } = updateArticleDto;
 
         let article = await this.articlesRepository.findOne({ where: { slug } });
 
         article.title = title;
+        article.subtitle = subtitle;
         article.body = body;
 
         const updatedArticle = await this.articlesRepository.save(article);
